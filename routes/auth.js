@@ -8,7 +8,6 @@ router.use(cors())
 const auth = require('../middleware/auth');
 
 router.post('/',(req, res) => {
-  console.log('body', req.body.email);
     const {name,email,password} = req.body;
   
     DataUser.findOne({email})
@@ -44,9 +43,8 @@ router.post('/',(req, res) => {
         });
 });
 // validating the user with token
-router.get('/user', auth,(req,res)=> {
-  console.log('ress', req.user.id);
-  DataUser.findById(req.user.id).select('-password').then(user => res.json(user))
+router.get('/user',auth,(req,res)=> {
+  DataUser.findById(req.user.id).select('password').then(user => res.json(user))
 });
 
 module.exports = router

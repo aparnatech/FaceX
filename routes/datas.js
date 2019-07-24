@@ -7,7 +7,13 @@ const bcrypt = require('bcryptjs')
 const mongoose = require('mongoose')
 router.use(cors())
 const auth = require('../middleware/auth');
-
+// get api
+router.get('/',(req, res) => {
+    DataUser.find()
+    .then(data => res.json(userdata))
+    .catch(err => res.status(400).json('Error: ' + err));
+});
+// post api
 router.post('/register',( req, res) => {   
     const userdata = {
         name : req.body.name,
@@ -46,7 +52,9 @@ router.post('/register',( req, res) => {
                             user: {
                                 _id: user.id,
                                 name: user.name,
-                                email: user.email
+                                email: user.email,
+                                age: user.age,
+                                role: user.role
                             }
                           });
                         }
@@ -60,7 +68,7 @@ router.post('/register',( req, res) => {
         });
 });
 router.post('/login',auth,(req, res) => {
-    // date.setTime(date.getTime() + 31536000000);
+    
     if(!req.body.email) {
       res.send({success: false, message:'Error:email must not be empty'})
     }
@@ -76,7 +84,9 @@ router.post('/login',auth,(req, res) => {
                   const payload = {
                       _id: user._id,
                       name: user.name,
-                      email: user.email
+                      email: user.email,
+                      role: user.role,
+                      age: user.age
                   }
                   jwt.sign(
                       payload,
@@ -95,7 +105,6 @@ router.post('/login',auth,(req, res) => {
                               email: user.email,
                               age: user.age,
                               role: user.role
-
                           }
                         });
                       }
@@ -105,16 +114,18 @@ router.post('/login',auth,(req, res) => {
                       .status(400)
                       .json({ passwordincorrect: "Password incorrect" });
                   }
+              } else {
+                res.send("register please!!!");
               }
       }).catch(err => {
           res.send('error' + err);
       });
   });
-router.delete('/delete/:id', auth,(req, res) => {
+ router.delete('/delete/:id', auth,(req, res) => {
     DataUser.findByIdAndDelete(req.params.id).then((users) => res.json(users)
   )});
   mongoose.set('useFindAndModify', false);
-router.post('/updating/:id',  auth,function (req, res) {
+  router.post('/updating/:id', auth,function (req, res) {
     const role = req.body.role;
     const age = req.body.age;
     const name = req.body.name;
@@ -126,7 +137,7 @@ router.post('/updating/:id',  auth,function (req, res) {
               res.status(200).send(data);
           }
         });
-       });
+    });
 
 
 module.exports = router
